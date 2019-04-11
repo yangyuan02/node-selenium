@@ -1,37 +1,55 @@
 // https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/chrome.html
-
-var webdriver = require('selenium-webdriver');
+const { Builder, By, Key, until, Button } = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
 var path = require('chromedriver').path;
 
 var service = new chrome.ServiceBuilder(path).build();
 chrome.setDefaultService(service);
 
-var driver = new webdriver.Builder().forBrowser('chrome').build(); //创建一个chrome 浏览器实例
-// var Options = new Options();
-driver
-  .manage()
-  .window()
-  .maximize();
-driver.get('http://localhost:3000/#!/login').then(res => {
-  // driver.windowSize({ height: 400, width: 400 });
-  driver.takeScreenshot().then((image, err) => {
-    require('fs').writeFile('./screenshot/login.png', image, 'base64', function(err) {
-      console.log(err);
-    });
+var driver = new Builder().forBrowser('chrome').build(); //创建一个chrome 浏览器实例
+
+var windowMax = () => {
+  // 窗口最大化
+  driver
+    .manage()
+    .window()
+    .maximize();
+};
+
+var open = async () => {
+  // 打开浏览器
+  return await driver.get('http://localhost:3000/#!/login');
+};
+var setFromValue = () => {
+  var username = driver.findElement(By.name('userName')).sendKeys('sd_shengda');
+  var password = driver.findElement(By.name('passWord')).sendKeys('shengda123456');
+  driver.findElement(By.className('login-btn-box')).click(); // 点击登录
+  createImags();
+};
+var takeScreenshot = async () => {
+  // 截屏任务
+  return await driver.takeScreenshot();
+};
+var utilsImags = (image, url) => {
+  require('fs').writeFile(url, image, 'base64', function(err) {
+    console.log(err);
   });
-});
+};
+var createImags = () => {
+  takeScreenshot().then((image, err) => {
+    utilsImags(image, './screen/login.png');
+  });
+};
 
-// var webdriver = require('selenium-webdriver');
-// var chrome = require('selenium-webdriver/chrome');
-// var path = require('chromedriver').path;
+var screen = () => {
+  open().then(res => {
+    setFromValue();
+  });
+};
 
-// var service = new chrome.ServiceBuilder(path).build();
-// chrome.setDefaultService(service);
-// // let chrome = require('selenium-webdriver/chrome');
-// // let { Builder } = require('selenium-webdriver');
+var init = () => {
+  windowMax();
+  screen();
+};
 
-// let driver = new webdriver.Builder()
-//   .forBrowser('chrome')
-//   .setChromeOptions(new chrome.Options().headless())
-//   .build();
+init();
